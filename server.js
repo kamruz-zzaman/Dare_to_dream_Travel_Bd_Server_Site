@@ -12,36 +12,45 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 async function run() {
     try {
+
+        // initialize Mongodb
         await client.connect();
         const database = client.db("DaretoDreamTravel");
         const packagesCollection = database.collection("Packages");
         const bookingCollection = database.collection("Booking");
+
+        // get all the packages
         app.get('/packages', async (req, res) => {
             const cursor = packagesCollection.find({});
             const package = await cursor.toArray();
             res.send(package);
-        })
+        });
+        // get one packages packacges by id
         app.get('/packages/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) }
             const package = await packagesCollection.findOne(query);
             res.send(package);
-        })
+        });
+        // Upload or post a package
         app.post('/packages', async (req, res) => {
             const data = req.body;
             const package = await packagesCollection.insertOne(data);
             res.send(package);
-        })
+        });
+        // post or upload bookinginfo
         app.post('/booking', async (req, res) => {
             const data = req.body;
             const booking = await bookingCollection.insertOne(data);
             res.send(booking);
-        })
+        });
+        // get Booking info 
         app.get('/booking', async (req, res) => {
             const cursor = bookingCollection.find({});
             const booking = await cursor.toArray();
             res.send(booking);
-        })
+        });
+        // update booking status
         app.put('/booking/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) };
@@ -54,7 +63,8 @@ async function run() {
             const result = bookingCollection.updateOne(filter, updateDoc, options);
             console.log(result);
             res.send(result);
-        })
+        });
+        // delet on booking info
         app.delete('/booking/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) }
@@ -63,14 +73,14 @@ async function run() {
         })
     } finally {
         // await client.close();
-    }
+    };
 }
 run().catch(console.dir);
 app.get('/', (req, res) => {
     res.send('Dare to Dream Travel Start')
-})
+});
 
 
 app.listen(port, () => {
     console.log('server start at port', port);
-})
+});
